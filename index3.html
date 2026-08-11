@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Surprise</title>
+
+    <meta property="og:title" content="Surprise">
+    <meta property="og:type" content="website">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #000;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+<canvas id="heart"></canvas>
+
+<script>
+const canvas = document.getElementById("heart");
+const ctx = canvas.getContext("2d");
+
+let points = [];
+let currentPoint = 0;
+let animationFrameId = null;
+
+// เก็บค่าจุดศูนย์กลางไว้ใช้วาดข้อความตรงกลาง
+let centerX = 0;
+let centerY = 0;
+
+function init() {
+    if (animationFrameId) {
+        clearTimeout(animationFrameId);
+    }
+
+    const dpr = window.devicePixelRatio || 1;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+
+    canvas.style.width = width + "px";
+    canvas.style.height = height + "px";
+
+    ctx.scale(dpr, dpr);
+
+    centerX = width / 2;
+    centerY = height / 2;
+    const scale = Math.min(width, height) / 38;
+
+    points = [];
+    currentPoint = 0;
+
+    for (let heartScale = 11; heartScale <= 13; heartScale++) {
+        for (let i = 0; i < 120; i++) {
+            let angle = i * (Math.PI * 2) / 120;
+
+            let x = 16 * Math.pow(Math.sin(angle), 3);
+            let y = 13 * Math.cos(angle)
+                - 5 * Math.cos(2 * angle)
+                - 2 * Math.cos(3 * angle)
+                - Math.cos(4 * angle);
+
+            points.push({
+                x: centerX + x * scale * (heartScale / 13),
+                y: centerY - y * scale * (heartScale / 13)
+            });
+        }
+    }
+
+    ctx.fillStyle = "#ffb6c1";
+    ctx.font = "bold 10px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    draw();
+}
+
+function draw() {
+    if (currentPoint < points.length) {
+        const point = points[currentPoint];
+
+        // ตั้งค่ารูปแบบตัวอักษรสำหรับ "I love you"
+        ctx.fillStyle = "#ffb6c1";
+        ctx.font = "bold 10px Arial";
+
+        ctx.fillText("I love you", point.x, point.y);
+        currentPoint++;
+
+        animationFrameId = setTimeout(draw, 30);
+    } else {
+        // วาดรูปหัวใจเสร็จแล้ว แสดงคำว่า "test" ตรงกลาง
+        drawCenterText();
+    }
+}
+
+function drawCenterText() {
+    // กำหนดสี ขนาด และรูปแบบตัวอักษรของคำว่า test
+    ctx.fillStyle = "#ffb6c1";           // เปลี่ยนสีตัวอักษรตรงกลางได้ตามใจชอบ (เช่น #ffffff = สีขาว)
+    ctx.font = "bold 32px Arial";         // ปรับขนาดตัวอักษรตรงกลางได้ที่นี่ (เช่น 32px)
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    ctx.fillText("First", centerX, centerY);
+}
+
+window.addEventListener("load", init);
+
+let resizeTimeout;
+window.addEventListener("resize", () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(init, 200);
+});
+</script>
+
+</body>
+</html>
